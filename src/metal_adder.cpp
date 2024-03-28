@@ -114,7 +114,7 @@ void MetalAdder::enconde_add_command(MTL::ComputeCommandEncoder& encoder) const
 
 void MetalAdder::generate_random_floats(MTL::Buffer& buffer)
 {
-  auto* data_ptr = static_cast<float*>(buffer.contents());
+  const auto data_ptr = static_cast<float*>(buffer.contents());
   for (unsigned long i = 0; i < arrayLength; ++i) {
     data_ptr[i] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
   }
