@@ -40,7 +40,7 @@ void print_stats(const T& durations)
   stddev = std::sqrt(stddev);
 
   std::cout << std::format(
-      "Total time: {} ms, iterations: {}, iteration time: {} ms, std dev {:.2f}",
+      "Total time: {} ms, iterations: {}, iteration time: {} ms, std dev: {:.2f}",
       total_time,
       durations.size(),
       mean, stddev) << "\n";
