@@ -7,11 +7,13 @@
 #include <format>
 #include <iostream>
 #include <numeric>
+#include <string_view>
 
 #include "metal_adder.hpp"
 
-using namespace std::chrono_literals;
-using Clock = std::chrono::high_resolution_clock;
+using Clock                            = std::chrono::high_resolution_clock;
+using time_unit                        = std::chrono::milliseconds;
+constexpr std::string_view time_unit_s = "ms";
 
 template<typename T>
 void serial_sum(const T& A, const T& B)
@@ -39,9 +41,10 @@ void print_stats(const T& durations)
   stddev /= durations.size();
   stddev = std::sqrt(stddev);
 
-  std::cout << std::format("Total time: {} ms, iterations: {}, iteration time: "
+  std::cout << std::format("Total time: {} {}, iterations: {}, iteration time: "
                            "{} ms, std dev: {:.2f}\n",
-                           total_time, durations.size(), mean, stddev);
+                           total_time, time_unit_s, durations.size(), mean,
+                           stddev);
 }
 
 int main()
@@ -58,9 +61,7 @@ int main()
     const auto start = Clock::now();
     adder.submit_command();
     const auto end = Clock::now();
-    duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-            .count();
+    duration       = std::chrono::duration_cast<time_unit>(end - start).count();
   }
   adder.verify_results();
   print_stats(durations);
@@ -74,9 +75,7 @@ int main()
     const auto start = Clock::now();
     serial_sum(A, B);
     const auto end = Clock::now();
-    duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end - start)
-            .count();
+    duration       = std::chrono::duration_cast<time_unit>(end - start).count();
   }
   print_stats(durations);
 
