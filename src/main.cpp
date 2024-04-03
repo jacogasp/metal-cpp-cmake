@@ -16,10 +16,10 @@ using time_unit                        = std::chrono::milliseconds;
 constexpr std::string_view time_unit_s = "ms";
 
 template<typename T>
-void serial_sum(const T& A, const T& B)
+void serial_sum(T const& A, T const& B)
 {
   for (int i = 0; i < A.size(); ++i) {
-    [[maybe_unused]] const auto x = A[i] + B[i];
+    [[maybe_unused]] auto const x = A[i] + B[i];
   }
 }
 
@@ -49,8 +49,8 @@ void print_stats(const T& durations)
 
 int main()
 {
-  const auto device = MTL::CreateSystemDefaultDevice();
-  const auto adder  = MetalAdder(*device);
+  auto const device = MTL::CreateSystemDefaultDevice();
+  auto const adder  = MetalAdder(*device);
 
   constexpr int iterations = 100;
   std::array<long long, iterations> durations{};
@@ -58,9 +58,9 @@ int main()
   // Benchmark GPU
   std::cout << "Benchmarking GPU...\n";
   for (auto& duration : durations) {
-    const auto start = Clock::now();
+    auto const start = Clock::now();
     adder.submit_command();
-    const auto end = Clock::now();
+    auto const end = Clock::now();
     duration       = std::chrono::duration_cast<time_unit>(end - start).count();
   }
   adder.verify_results();
@@ -68,13 +68,13 @@ int main()
 
   // Benchmark CPU (serial)
   std::cout << "\nBenchmarking CPU...\n";
-  const auto A = adder.buffer_A();
-  const auto B = adder.buffer_B();
+  auto const A = adder.buffer_A();
+  auto const B = adder.buffer_B();
 
   for (auto& duration : durations) {
-    const auto start = Clock::now();
+    auto const start = Clock::now();
     serial_sum(A, B);
-    const auto end = Clock::now();
+    auto const end = Clock::now();
     duration       = std::chrono::duration_cast<time_unit>(end - start).count();
   }
   print_stats(durations);
