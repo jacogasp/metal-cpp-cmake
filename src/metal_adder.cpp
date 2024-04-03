@@ -38,10 +38,10 @@ MetalAdder::MetalAdder(MTL::Device& device)
     return;
   }
 
-  m_buffer_A = m_device.newBuffer(bufferSize, MTL::ResourceStorageModeShared);
-  m_buffer_B = m_device.newBuffer(bufferSize, MTL::ResourceStorageModeShared);
+  m_buffer_A = m_device.newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
+  m_buffer_B = m_device.newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
   m_buffer_result =
-      m_device.newBuffer(bufferSize, MTL::ResourceStorageModeShared);
+      m_device.newBuffer(BUFFER_SIZE, MTL::ResourceStorageModeShared);
 
   prepare_data();
 }
@@ -71,7 +71,7 @@ void MetalAdder::verify_results() const
   const auto a      = static_cast<float*>(m_buffer_A->contents());
   const auto b      = static_cast<float*>(m_buffer_B->contents());
   const auto result = static_cast<float*>(m_buffer_result->contents());
-  for (unsigned int i = 0; i < arrayLength; ++i) {
+  for (unsigned int i = 0; i < ARRAY_LENGTH; ++i) {
     if (const auto expected = a[i] + b[i]; result[i] != expected) {
       std::cout << std::format(
           "Compute ERROR: index={}, result={}, vs {}=a+b\n", i, result[i],
@@ -84,13 +84,13 @@ void MetalAdder::verify_results() const
 std::vector<float> MetalAdder::buffer_A() const
 {
   auto contents = static_cast<float*>(m_buffer_A->contents());
-  return {contents, contents + arrayLength};
+  return {contents, contents + ARRAY_LENGTH};
 }
 
 std::vector<float> MetalAdder::buffer_B() const
 {
   auto contents = static_cast<float*>(m_buffer_B->contents());
-  return {contents, contents + arrayLength};
+  return {contents, contents + ARRAY_LENGTH};
 }
 
 void MetalAdder::encode_add_command(MTL::ComputeCommandEncoder& encoder) const
@@ -100,12 +100,12 @@ void MetalAdder::encode_add_command(MTL::ComputeCommandEncoder& encoder) const
   encoder.setBuffer(m_buffer_B, 0, 1);
   encoder.setBuffer(m_buffer_result, 0, 2);
 
-  const auto grid_size = MTL::Size::Make(arrayLength, 1, 1);
+  const auto grid_size = MTL::Size::Make(ARRAY_LENGTH, 1, 1);
 
   NS::UInteger thread_groups =
       m_pipeline_state->maxTotalThreadsPerThreadgroup();
-  if (thread_groups > arrayLength) {
-    thread_groups = arrayLength;
+  if (thread_groups > ARRAY_LENGTH) {
+    thread_groups = ARRAY_LENGTH;
   }
 
   const auto thread_group_size = MTL::Size::Make(thread_groups, 1, 1);
@@ -116,7 +116,7 @@ void MetalAdder::encode_add_command(MTL::ComputeCommandEncoder& encoder) const
 void MetalAdder::generate_random_floats(MTL::Buffer& buffer)
 {
   const auto data_ptr = static_cast<float*>(buffer.contents());
-  for (unsigned long i = 0; i < arrayLength; ++i) {
+  for (unsigned long i = 0; i < ARRAY_LENGTH; ++i) {
     data_ptr[i] = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
   }
 }

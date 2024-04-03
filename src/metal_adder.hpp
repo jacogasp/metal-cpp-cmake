@@ -4,8 +4,8 @@
 #include <Metal/Metal.hpp>
 #include <vector>
 
-constexpr unsigned int arrayLength = 60 * 180 * 10'000;
-constexpr unsigned int bufferSize  = arrayLength * sizeof(float);
+constexpr unsigned int ARRAY_LENGTH = 60 * 180 * 10'000;
+constexpr unsigned int BUFFER_SIZE  = ARRAY_LENGTH * sizeof(float);
 
 class MetalAdder
 {
