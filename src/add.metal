@@ -1,6 +1,7 @@
 #include <metal_stdlib>
 
 using namespace metal;
+
 kernel void add_arrays(
   device const float* A,
   device const float* B,

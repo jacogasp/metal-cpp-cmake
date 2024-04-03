@@ -1,11 +1,11 @@
 #include "metal_adder.hpp"
 
-#include <iostream>
 #include <cassert>
 #include <format>
+#include <iostream>
 
 MetalAdder::MetalAdder(MTL::Device& device)
-  : m_device(device)
+    : m_device(device)
 {
   NS::Error* error              = nullptr;
   MTL::Library* default_library = m_device.newDefaultLibrary();
@@ -15,8 +15,8 @@ MetalAdder::MetalAdder(MTL::Device& device)
     return;
   }
 
-  auto const function_name = NS::String::string(
-      "add_arrays", NS::ASCIIStringEncoding);
+  auto const function_name =
+      NS::String::string("add_arrays", NS::ASCIIStringEncoding);
   MTL::Function* add_function = default_library->newFunction(function_name);
 
   if (add_function == nullptr) {
@@ -40,8 +40,8 @@ MetalAdder::MetalAdder(MTL::Device& device)
 
   m_buffer_A = m_device.newBuffer(bufferSize, MTL::ResourceStorageModeShared);
   m_buffer_B = m_device.newBuffer(bufferSize, MTL::ResourceStorageModeShared);
-  m_buffer_result = m_device.newBuffer(bufferSize,
-                                       MTL::ResourceStorageModeShared);
+  m_buffer_result =
+      m_device.newBuffer(bufferSize, MTL::ResourceStorageModeShared);
 
   prepare_data();
 }
@@ -60,7 +60,7 @@ void MetalAdder::submit_command() const
   const auto compute_encoder = command_buffer->computeCommandEncoder();
   assert(compute_encoder != nullptr);
 
-  enconde_add_command(*compute_encoder);
+  encode_add_command(*compute_encoder);
   compute_encoder->endEncoding();
   command_buffer->commit();
   command_buffer->waitUntilCompleted();
@@ -71,7 +71,7 @@ void MetalAdder::verify_results() const
   const auto a      = static_cast<float*>(m_buffer_A->contents());
   const auto b      = static_cast<float*>(m_buffer_B->contents());
   const auto result = static_cast<float*>(m_buffer_result->contents());
-  for (unsigned int i       = 0; i < arrayLength; ++i) {
+  for (unsigned int i = 0; i < arrayLength; ++i) {
     if (const auto expected = a[i] + b[i]; result[i] != expected) {
       std::cout << std::format(
           "Compute ERROR: index={}, result={}, vs {}=a+b\n", i, result[i],
@@ -93,7 +93,7 @@ std::vector<float> MetalAdder::buffer_B() const
   return {contents, contents + arrayLength};
 }
 
-void MetalAdder::enconde_add_command(MTL::ComputeCommandEncoder& encoder) const
+void MetalAdder::encode_add_command(MTL::ComputeCommandEncoder& encoder) const
 {
   encoder.setComputePipelineState(m_pipeline_state);
   encoder.setBuffer(m_buffer_A, 0, 0);
@@ -102,14 +102,15 @@ void MetalAdder::enconde_add_command(MTL::ComputeCommandEncoder& encoder) const
 
   const auto grid_size = MTL::Size::Make(arrayLength, 1, 1);
 
-  NS::UInteger threadgroups = m_pipeline_state->maxTotalThreadsPerThreadgroup();
-  if (threadgroups > arrayLength) {
-    threadgroups = arrayLength;
+  NS::UInteger thread_groups =
+      m_pipeline_state->maxTotalThreadsPerThreadgroup();
+  if (thread_groups > arrayLength) {
+    thread_groups = arrayLength;
   }
 
-  const auto threadgroup_size = MTL::Size::Make(threadgroups, 1, 1);
+  const auto thread_group_size = MTL::Size::Make(thread_groups, 1, 1);
 
-  encoder.dispatchThreads(grid_size, threadgroup_size);
+  encoder.dispatchThreads(grid_size, thread_group_size);
 }
 
 void MetalAdder::generate_random_floats(MTL::Buffer& buffer)
